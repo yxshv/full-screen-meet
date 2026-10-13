@@ -1,4 +1,5 @@
 const input = document.getElementById("url");
+const keyInput = document.getElementById("key");
 const status = document.getElementById("status");
 
 function show(msg, err) {
@@ -6,7 +7,8 @@ function show(msg, err) {
   status.className = err ? "err" : "";
 }
 
-chrome.storage.sync.get("serverUrl").then(async ({ serverUrl }) => {
+chrome.storage.sync.get(["serverUrl", "apiKey"]).then(async ({ serverUrl, apiKey }) => {
+  keyInput.value = apiKey || "";
   if (serverUrl) return (input.value = serverUrl);
   try {
     input.value = (await (await fetch("config.json")).json()).serverUrl || "";
@@ -24,12 +26,13 @@ document.getElementById("save").addEventListener("click", async () => {
   // localhost:3000 is granted at install; anything else needs a permission prompt.
   const granted = await chrome.permissions.request({ origins: [url.origin + "/*"] });
   if (!granted) return show("Permission to reach that host was denied.", true);
-  await chrome.storage.sync.set({ serverUrl: url.href });
+  await chrome.storage.sync.set({ serverUrl: url.href, apiKey: keyInput.value.trim() });
   show("Saved: " + url.href);
 });
 
 document.getElementById("reset").addEventListener("click", async () => {
-  await chrome.storage.sync.remove("serverUrl");
+  await chrome.storage.sync.remove(["serverUrl", "apiKey"]);
+  keyInput.value = "";
   show("Reset. Using config.json.");
   try {
     input.value = (await (await fetch("config.json")).json()).serverUrl || "";

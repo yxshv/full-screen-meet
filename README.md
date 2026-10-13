@@ -11,7 +11,7 @@ In a Meet call where someone is presenting, click the **Full screen** button (bo
 Drag the Chrome window to the monitor you want first; fullscreen fills the monitor the window is on.
 
 ## Screenshots to a local server
-1. Start the receiver: `node server/server.js` (listens on `localhost:3000`, saves JPEGs to `server/screenshots/`).
+1. Start the receiver: `API_KEY=your-secret node server/server.js` (listens on `localhost:3000`, saves JPEGs to `server/screenshots/`).
 2. Capture starts automatically when you full-screen the shared screen (button or Alt+Shift+F) and stops when you exit full screen. A frame is saved every 2 seconds; images only go to `localhost:3000`.
 
 ## Custom server URL
@@ -21,3 +21,7 @@ The URL screenshots are sent to is resolved in this order:
 3. Default: `http://localhost:3000/screenshot`.
 
 The bundled server listens on `PORT` (env var, default 3000): `PORT=4000 node server/server.js`.
+
+## API key
+The server requires `API_KEY` in its environment and refuses to start without it. Every upload must carry `Authorization: Bearer <API_KEY>`, otherwise the server answers `401`.
+Set the same key in the extension via `"apiKey"` in `config.json` or the Options page (which takes precedence). Don't commit a real key: keep `config.json`'s `apiKey` empty in git and use the Options page, or avoid committing local edits. Use `https://` when the server isn't on localhost, since the key travels in a header.

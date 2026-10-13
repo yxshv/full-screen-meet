@@ -1,3 +1,4 @@
 {
-  "serverUrl": "http://localhost:3000/screenshot"
+  "serverUrl": "http://localhost:3000/screenshot",
+  "apiKey": ""
 }
