@@ -12,6 +12,4 @@ Drag the Chrome window to the monitor you want first; fullscreen fills the monit
 
 ## Screenshots to a local server
 1. Start the receiver: `node server/server.js` (listens on `localhost:3000`, saves JPEGs to `server/screenshots/`).
-2. During a presentation click **Capture** (or Alt+Shift+C). A frame of the shared screen is saved every 2 seconds; the red dot shows capture is active. Click again to stop.
-
-Capture is off until you turn it on, and images only go to `localhost:3000`.
+2. Capture starts automatically when you full-screen the shared screen (button or Alt+Shift+F) and stops when you exit full screen. A frame is saved every 2 seconds; images only go to `localhost:3000`.
