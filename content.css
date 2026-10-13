@@ -1,4 +1,4 @@
-#fsm-button {
+#fsm-button, .fsm-btn {
   position: fixed;
   right: 16px;
   bottom: 96px;
@@ -15,8 +15,8 @@
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
-#fsm-button.fsm-visible { display: inline-flex; }
-#fsm-button:hover { background: rgba(60, 64, 67, 0.95); }
+#fsm-button.fsm-visible, .fsm-btn.fsm-visible { display: inline-flex; }
+#fsm-button:hover, .fsm-btn:hover { background: rgba(60, 64, 67, 0.95); }
 #fsm-button svg { width: 18px; height: 18px; fill: currentColor; }
 
 /* While fullscreen, make the video fill the monitor without cropping. */
@@ -27,3 +27,7 @@ video:fullscreen {
   background: #000 !important;
   transform: none !important;
 }
+
+#fsm-capture { bottom: 140px; }
+.fsm-dot { width: 8px; height: 8px; border-radius: 50%; background: #9aa0a6; }
+.fsm-recording .fsm-dot { background: #ea4335; }
