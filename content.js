@@ -31,7 +31,8 @@
   let captureTimer = null;
 
   function captureFrame() {
-    const video = findPresentationVideo();
+    const fs = document.fullscreenElement;
+    const video = fs instanceof HTMLVideoElement ? fs : findPresentationVideo();
     if (!video) return;
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
@@ -40,25 +41,17 @@
     chrome.runtime.sendMessage({ type: "screenshot", dataUrl: canvas.toDataURL("image/jpeg", 0.85) });
   }
 
-  function toggleCapture() {
-    if (captureTimer) {
-      clearInterval(captureTimer);
-      captureTimer = null;
-    } else {
+  // Capture automatically while a video is in full screen.
+  document.addEventListener("fullscreenchange", () => {
+    const active = document.fullscreenElement instanceof HTMLVideoElement;
+    if (active && !captureTimer) {
       captureFrame();
       captureTimer = setInterval(captureFrame, CAPTURE_INTERVAL_MS);
+    } else if (!active && captureTimer) {
+      clearInterval(captureTimer);
+      captureTimer = null;
     }
-    capBtn.classList.toggle("fsm-recording", !!captureTimer);
-    capBtn.lastChild.textContent = captureTimer ? "Capturing (stop)" : "Capture";
-  }
-
-  const capBtn = document.createElement("button");
-  capBtn.id = "fsm-capture";
-  capBtn.className = "fsm-btn";
-  capBtn.title = "Save a screenshot of the shared screen every 2s to localhost:3000 (Alt+Shift+C)";
-  capBtn.innerHTML = '<span class="fsm-dot"></span>Capture';
-  capBtn.addEventListener("click", toggleCapture);
-  document.documentElement.appendChild(capBtn);
+  });
 
   const btn = document.createElement("button");
   btn.id = "fsm-button";
@@ -72,16 +65,12 @@
   setInterval(() => {
     const show = !document.fullscreenElement && !!findPresentationVideo();
     btn.classList.toggle("fsm-visible", show);
-    capBtn.classList.toggle("fsm-visible", (show || !!captureTimer) && !document.fullscreenElement);
   }, 1000);
 
   document.addEventListener("keydown", (e) => {
     if (e.altKey && e.shiftKey && e.code === "KeyF") {
       e.preventDefault();
       toggleFullscreen();
-    } else if (e.altKey && e.shiftKey && e.code === "KeyC") {
-      e.preventDefault();
-      toggleCapture();
     }
   });
 })();
