@@ -4,7 +4,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const DIR = path.join(__dirname, "screenshots");
 const MAX_BYTES = 20 * 1024 * 1024;
 fs.mkdirSync(DIR, { recursive: true });
