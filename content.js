@@ -27,8 +27,8 @@
   }
 
   // --- Periodic screenshots of the shared screen -> local server ---
-  const CAPTURE_INTERVAL_MS = 2000;
   let captureTimer = null;
+  let starting = false;
 
   function captureFrame() {
     const fs = document.fullscreenElement;
@@ -45,9 +45,18 @@
   document.addEventListener("fullscreenchange", () => {
     const active = document.fullscreenElement instanceof HTMLVideoElement;
     if (active && !captureTimer) {
-      captureFrame();
-      captureTimer = setInterval(captureFrame, CAPTURE_INTERVAL_MS);
-    } else if (!active && captureTimer) {
+      starting = true;
+      chrome.runtime.sendMessage({ type: "getInterval" }, (seconds) => {
+        // Bail out if full screen was exited while waiting for the config.
+        if (!starting || !(document.fullscreenElement instanceof HTMLVideoElement)) return;
+        starting = false;
+        captureFrame();
+        captureTimer = setInterval(captureFrame, (seconds || 10) * 1000);
+      });
+    } else if (!active) {
+      starting = false;
+    }
+    if (!active && captureTimer) {
       clearInterval(captureTimer);
       captureTimer = null;
     }
