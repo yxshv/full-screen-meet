@@ -4,12 +4,13 @@
 // URL and API key precedence: Options page (chrome.storage) > config.json > default.
 // The key is sent as "Authorization: Bearer <key>" when set.
 const DEFAULT_URL = "http://localhost:3000/screenshot";
+const DEFAULT_INTERVAL_SECONDS = 10;
 
 async function getSettings() {
   let stored = {};
   let cfg = {};
   try {
-    stored = await chrome.storage.sync.get(["serverUrl", "apiKey"]);
+    stored = await chrome.storage.sync.get(["serverUrl", "apiKey", "intervalSeconds"]);
   } catch {}
   try {
     cfg = await (await fetch(chrome.runtime.getURL("config.json"))).json();
@@ -17,10 +18,15 @@ async function getSettings() {
   return {
     url: stored.serverUrl || cfg.serverUrl || DEFAULT_URL,
     apiKey: stored.apiKey || cfg.apiKey || "",
+    intervalSeconds: Math.max(1, Number(stored.intervalSeconds || cfg.intervalSeconds) || DEFAULT_INTERVAL_SECONDS),
   };
 }
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg?.type === "getInterval") {
+    getSettings().then((s) => sendResponse(s.intervalSeconds));
+    return true;
+  }
   if (msg?.type !== "screenshot") return;
   getSettings()
     .then(({ url, apiKey }) => {
