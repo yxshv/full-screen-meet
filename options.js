@@ -25,7 +25,7 @@ document.getElementById("save").addEventListener("click", async () => {
   } catch {
     return show("Enter a valid http(s) URL.", true);
   }
-  // localhost:3000 is granted at install; anything else needs a permission prompt.
+  // 127.0.0.1:3000 and localhost:3000 are granted at install; anything else needs a permission prompt.
   const granted = await chrome.permissions.request({ origins: [url.origin + "/*"] });
   if (!granted) return show("Permission to reach that host was denied.", true);
   await chrome.storage.sync.set({ serverUrl: url.href, apiKey: keyInput.value.trim() });
