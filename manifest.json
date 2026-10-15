@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Full Screen Meet",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Show a Google Meet shared screen in true full screen, and optionally save a screenshot of it every 2 seconds to a local server.",
   "icons": {
     "16": "icons/icon16.png",
@@ -27,5 +27,16 @@
   ],
   "background": {
     "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
   }
 }
