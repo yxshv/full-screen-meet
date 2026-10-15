@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
+const HOST = process.env.HOST || "127.0.0.1";
 const PORT = Number(process.env.PORT) || 3000;
 const DIR = path.join(__dirname, "screenshots");
 const MAX_BYTES = 20 * 1024 * 1024;
@@ -53,4 +54,4 @@ http
       });
     });
   })
-  .listen(PORT, "127.0.0.1", () => console.log(`Listening on http://localhost:${PORT}, saving to ${DIR}`));
+  .listen(PORT, HOST, () => console.log(`Listening on http://${HOST}:${PORT}, saving to ${DIR}`));

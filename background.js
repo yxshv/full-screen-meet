@@ -3,7 +3,7 @@
 //
 // URL and API key precedence: Options page (chrome.storage) > config.json > default.
 // The key is sent as "Authorization: Bearer <key>" when set.
-const DEFAULT_URL = "http://localhost:3000/screenshot";
+const DEFAULT_URL = "http://127.0.0.1:3000/screenshot";
 const DEFAULT_INTERVAL_SECONDS = 10;
 
 async function getSettings() {
