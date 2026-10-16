@@ -7,7 +7,7 @@ Chrome extension that shows a Google Meet shared screen in true full screen (you
 2. Click **Load unpacked** and select this folder.
 
 ## Use
-In a Meet call where someone is presenting, click the **Full screen** button (bottom right) or press **Alt+Shift+F**. Press `Esc` or the shortcut again to exit.
+In a Meet call (button shows on any meeting page), click the **Full screen** button (bottom right) or press **Alt+Shift+F**. Press `Esc` or the shortcut again to exit.
 Drag the Chrome window to the monitor you want first; fullscreen fills the monitor the window is on.
 
 ## Screenshots to a local server
