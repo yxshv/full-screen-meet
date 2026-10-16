@@ -8,6 +8,8 @@
     let bestArea = MIN_AREA;
     for (const v of document.querySelectorAll("video")) {
       if (v.videoWidth === 0 || v.videoHeight === 0) continue; // no decoded frame yet
+      // Skip videos that are laid out but invisible (opacity 0 / visibility hidden / display none).
+      if (v.checkVisibility && !v.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
       const r = v.getBoundingClientRect();
       const w = Math.min(r.right, innerWidth) - Math.max(r.left, 0);
       const h = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
@@ -53,11 +55,24 @@
     const fs = document.fullscreenElement;
     const video = fs instanceof HTMLVideoElement ? fs : findPresentationVideo();
     if (!video || !video.videoWidth || !video.videoHeight) return; // nothing decoded: skip empty uploads
+    // After the extension is reloaded/updated, this old script can no longer reach it: stop
+    // capturing instead of throwing every interval. (Refresh the tab to get the new version.)
+    if (!chrome.runtime?.id) return stopCapture();
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext("2d").drawImage(video, 0, 0);
-    chrome.runtime.sendMessage({ type: "screenshot", dataUrl: canvas.toDataURL("image/jpeg", 0.85) });
+    try {
+      chrome.runtime.sendMessage({ type: "screenshot", dataUrl: canvas.toDataURL("image/jpeg", 0.85) });
+    } catch {
+      stopCapture();
+    }
+  }
+
+  function stopCapture() {
+    starting = false;
+    clearInterval(captureTimer);
+    captureTimer = null;
   }
 
   // Capture automatically while a video is in full screen.
@@ -65,20 +80,17 @@
     placeButton();
     const active = videoIsFullscreen();
     if (active && !captureTimer) {
+      if (!chrome.runtime?.id) return; // extension reloaded; refresh the tab
       starting = true;
       chrome.runtime.sendMessage({ type: "getInterval" }, (seconds) => {
         // Bail out if full screen was exited while waiting for the config.
         if (!starting || !videoIsFullscreen()) return;
         starting = false;
-        captureFrame();
         captureTimer = setInterval(captureFrame, (seconds || 10) * 1000);
+        captureFrame(); // first shot right away (may stop capture if the extension is gone)
       });
     } else if (!active) {
-      starting = false;
-    }
-    if (!active && captureTimer) {
-      clearInterval(captureTimer);
-      captureTimer = null;
+      stopCapture();
     }
   });
 
@@ -107,10 +119,16 @@
     btn.classList.toggle("fsm-visible", show);
   }, 1000);
 
-  document.addEventListener("keydown", (e) => {
-    if (e.altKey && e.shiftKey && e.code === "KeyF") {
-      e.preventDefault();
-      toggleFullscreen();
-    }
-  });
+  // Capture phase on window: runs before Meet's own key handlers, which may stop propagation.
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.altKey && e.shiftKey && e.code === "KeyF" && !e.repeat) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFullscreen();
+      }
+    },
+    true
+  );
 })();
