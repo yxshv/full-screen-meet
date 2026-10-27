@@ -1,5 +1,8 @@
 #fsm-button {
   position: fixed;
+  inset: auto; /* undo the popover defaults (inset: 0; margin: auto) */
+  margin: 0;
+  overflow: visible;
   right: 16px;
   bottom: 96px;
   z-index: 2147483647;
